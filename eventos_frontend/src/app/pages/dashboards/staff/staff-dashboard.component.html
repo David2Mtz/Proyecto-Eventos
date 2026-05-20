@@ -1,0 +1,40 @@
+<div class="dashboard-page">
+  <header class="dashboard-header">
+    <h1>Validación de <span class="accent">Acceso</span></h1>
+    <p>Escanea o ingresa el token del invitado para registrar su entrada.</p>
+  </header>
+
+  <div class="scanner-container">
+    <div class="input-card">
+      <h3>Ingreso Manual de Token</h3>
+      <div class="form-group">
+        <input 
+          type="text" 
+          [(ngModel)]="qrToken" 
+          placeholder="Ej: 550e8400-e29b-41d4-a716-446655440000"
+          (keyup.enter)="validarAcceso()"
+        >
+        <button class="btn-primary" (click)="validarAcceso()" [disabled]="isLoading()">
+          {{ isLoading() ? 'Validando...' : 'Validar Entrada' }}
+        </button>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="alert error">
+          <span class="icon">❌</span> {{ errorMessage() }}
+        </div>
+      }
+
+      @if (validationResult()) {
+        <div class="alert success">
+          <span class="icon">✅</span>
+          <div>
+            <strong>Acceso Autorizado</strong>
+            <p>Invitado: {{ validationResult().invitacion.invitado.nombre }}</p>
+            <p>Evento: {{ validationResult().invitacion.evento.nombreEvento }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

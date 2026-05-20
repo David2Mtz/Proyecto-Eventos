@@ -1,0 +1,50 @@
+/* Global variables for easy customization */
+:root {
+  /* Color Palette */
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --secondary-color: #ec4899;
+  --accent-color: #f59e0b;
+  
+  /* Backgrounds */
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-navbar: #ffffff;
+  
+  /* Text Colors */
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --text-on-primary: #ffffff;
+  
+  /* Typography */
+  --font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family-headings: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  /* Borders and radius */
+  --border-color: #e2e8f0;
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  
+  /* Spacing */
+  --spacing-unit: 1rem;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family-base);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-headings);
+  color: var(--text-main);
+  margin-top: 0;
+}
+
+* {
+  box-sizing: border-box;
+}

@@ -1,0 +1,113 @@
+.dashboard-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem var(--spacing-unit);
+}
+
+.dashboard-header {
+  margin-bottom: 3rem;
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    .accent { color: var(--primary-color); }
+  }
+  p { color: var(--text-muted); font-size: 1.125rem; }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.stats-card {
+  background: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+  text-align: center;
+  
+  h3 { font-size: 0.875rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+  .stat { font-size: 2.5rem; font-weight: 800; color: var(--primary-color); margin: 0; }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  h2 { font-size: 1.5rem; font-weight: 700; margin: 0; }
+}
+
+.table-container {
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+.zentry-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  
+  th {
+    background: #f1f5f9;
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  
+  td {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9375rem;
+  }
+}
+
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  
+  &.ADMIN { background: #e0e7ff; color: #4338ca; }
+  &.ANFITRION { background: #fef3c7; color: #b45309; }
+  &.STAFF { background: #dcfce7; color: #15803d; }
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  margin-right: 0.5rem;
+  &.active { background: #10b981; }
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  &:hover { background-color: var(--primary-hover); }
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 1.1rem;
+  border-radius: var(--border-radius-sm);
+  &:hover { background: var(--bg-main); }
+}

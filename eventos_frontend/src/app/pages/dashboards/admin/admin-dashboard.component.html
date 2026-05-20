@@ -1,0 +1,51 @@
+<div class="dashboard-page">
+  <header class="dashboard-header">
+    <h1>Panel de <span class="accent">Administrador</span></h1>
+    <p>Gestiona los usuarios y la configuración global del sistema.</p>
+  </header>
+
+  <div class="dashboard-grid">
+    <div class="stats-card">
+      <h3>Usuarios Activos</h3>
+      <p class="stat">{{ users().length }}</p>
+    </div>
+  </div>
+
+  <section class="user-list">
+    <div class="section-header">
+      <h2>Lista de Usuarios</h2>
+      <button class="btn-primary">Nuevo Usuario</button>
+    </div>
+
+    <div class="table-container">
+      <table class="zentry-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.idUsuario) {
+            <tr>
+              <td>{{ user.nombre }}</td>
+              <td>{{ user.correo }}</td>
+              <td><span class="badge" [class]="user.rol">{{ user.rol }}</span></td>
+              <td>
+                <span class="status-indicator" [class.active]="user.activo"></span>
+                {{ user.activo ? 'Activo' : 'Inactivo' }}
+              </td>
+              <td>
+                <button class="btn-icon">✏️</button>
+                <button class="btn-icon">🗑️</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

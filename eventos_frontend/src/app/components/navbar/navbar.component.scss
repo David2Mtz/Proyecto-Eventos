@@ -1,0 +1,115 @@
+.navbar {
+  height: 70px;
+  background-color: var(--bg-navbar);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.navbar-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-unit);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  
+  .logo-img {
+    height: 40px;
+    width: 40px;
+  }
+  
+  .logo-text {
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.025em;
+    color: var(--text-main);
+    
+    .accent {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  
+  .nav-link {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    transition: color 0.2s;
+    
+    &:hover, &.active {
+      color: var(--primary-color);
+    }
+  }
+  
+  .btn-login {
+    background-color: var(--primary-color);
+    color: var(--text-on-primary);
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--border-radius-md);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: var(--primary-hover);
+    }
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-left: 1rem;
+    border-left: 1px solid var(--border-color);
+
+    .user-name {
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--text-main);
+    }
+
+    .user-rol {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: lowercase;
+    }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid var(--border-color);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--border-radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        border-color: #fecaca;
+      }
+    }
+  }
+}
