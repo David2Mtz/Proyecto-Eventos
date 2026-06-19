@@ -33,7 +33,7 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         crearRolesIniciales();
         crearUsuariosIniciales();
-        imprimirHashesPasswords();
+//        imprimirHashesPasswords();
     }
 
     private void crearRolesIniciales() {
@@ -114,12 +114,12 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private void imprimirHashesPasswords() {
-        System.out.println("=================================================");
-        System.out.println("USUARIOS INICIALES CREADOS:");
-        System.out.println("Admin: admin@zentry.com / admin2026");
-        System.out.println("Anfitrión: anfitrion@zentry.com / eventos2026");
-        System.out.println("Staff: staff@zentry.com / staff2026");
-        System.out.println("=================================================");
-    }
+//    private void imprimirHashesPasswords() {
+//        System.out.println("=================================================");
+//        System.out.println("USUARIOS INICIALES CREADOS:");
+//        System.out.println("Admin: admin@zentry.com / admin2026");
+//        System.out.println("Anfitrión: anfitrion@zentry.com / eventos2026");
+//        System.out.println("Staff: staff@zentry.com / staff2026");
+//        System.out.println("=================================================");
+//    }
 }

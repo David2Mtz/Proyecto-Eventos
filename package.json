@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@zxing/library": "^0.21.3",
-    "@zxing/ngx-scanner": "^21.0.0"
-  }
-}

@@ -1,474 +1,192 @@
-# Codffee - Guía rápida de ejecución y pruebas
+# Proyecto Eventos (Zentry) - Guía de Ejecución y Desarrollo
 
-Este documento explica cómo ejecutar el proyecto **Codffee** usando Docker y cómo probar sus funcionalidades principales desde **Swagger UI**.
+Este proyecto es una plataforma integral para la gestión de eventos, invitados, invitaciones y control de accesos mediante códigos QR. Los anfitriones pueden organizar sus eventos y generar invitaciones digitales que se envían por correo electrónico a los invitados con un código QR único. El personal de staff utiliza la cámara de la aplicación para escanear y validar estos códigos al ingresar al recinto, obteniendo respuestas visuales y sonoras en tiempo real.
 
 ---
 
-## 1. Requisitos
+## 1. Arquitectura y Tecnologías
 
-Antes de ejecutar el proyecto, asegúrate de tener instalado:
+### Backend (`eventos_backend`)
+*   **Framework:** Spring Boot (Java 21)
+*   **Seguridad:** Spring Security con autenticación basada en tokens JWT.
+*   **Base de Datos:** PostgreSQL (Desarrollo local) y YugabyteDB (Producción).
+*   **Mapeo ORM:** Spring Data JPA con Hibernate (autocreación/actualización de tablas con `ddl-auto=update`).
+*   **Servicio de Correo:** Spring Mail para el envío de invitaciones con QR.
+*   **Documentación:** Springdoc-openapi (Swagger UI).
 
-- Docker
-- Docker Compose
-- Node.js y npm, solo si también se probará el frontend React
+### Frontend (`eventos_frontend`)
+*   **Framework:** Angular (v20)
+*   **Escaner QR:** Integración con `@zxing/ngx-scanner` y `@zxing/library` para la lectura desde la cámara del dispositivo.
+*   **Alertas:** Visualizaciones interactivas mediante SweetAlert2.
+*   **Reportes:** Generación de PDF en el cliente con la biblioteca `jsPDF`.
 
-Puedes comprobar Docker con:
+---
 
+## 2. Requisitos Previos
+
+Asegúrate de tener instalados los siguientes componentes antes de iniciar:
+
+*   **Docker** y **Docker Compose**
+*   **Node.js** (v18 o superior) y **npm** (para ejecutar el frontend localmente fuera de Docker si se requiere)
+
+Puedes verificar tu entorno con:
 ```bash
 docker --version
 docker compose version
-```
-
-Y Node.js con:
-
-```bash
 node -v
 npm -v
 ```
 
 ---
 
-## 2. Configurar variables de entorno del backend
+## 3. Configuración de Variables de Entorno (.env)
 
-En la raíz del proyecto backend, donde están `Dockerfile` y `docker-compose.yml`, crea un archivo llamado:
-
-```text
-.env
-```
-
-Agrega el siguiente contenido:
+Crea un archivo llamado `.env` en la raíz de la carpeta `eventos_backend/` con las siguientes variables para configurar la base de datos local y el servicio de correos:
 
 ```env
-MYSQL_DATABASE=codffee_db
-MYSQL_ROOT_PASSWORD=root
+# Configuración de Base de Datos (Local PostgreSQL en Docker)
+DB_NAME=zentry_eventos
+DB_USER=postgres
+DB_PASSWORD=postgres
 
-SPRING_DATASOURCE_USERNAME=root
-SPRING_DATASOURCE_PASSWORD=root
-
+# Configuración del Servidor de Correo (Gmail de ejemplo)
 SPRING_MAIL_HOST=smtp.gmail.com
 SPRING_MAIL_PORT=587
 SPRING_MAIL_USERNAME=TU_CORREO@gmail.com
 SPRING_MAIL_PASSWORD=TU_PASSWORD_DE_APLICACION
 
-JWT_SECRET=Q29kZmZlZVNlY3JldEtleTIwMjZQcm95ZWN0b0NhZmV0ZXJpYVNlZ3VyYQ==
+# Configuración de Seguridad JWT
+JWT_SECRET=WmVudHJ5U2VjcmV0S2V5MjAyNlByb3llY3RvRXZlbnRvc1NlZ3VyYQ==
 JWT_EXPIRATION_MS=86400000
 ```
 
-Cambia `TU_CORREO@gmail.com` y `TU_PASSWORD_DE_APLICACION` por los datos reales del correo que enviará notificaciones.
-
-> Si usas Gmail, necesitas una contraseña de aplicación, no la contraseña normal de tu cuenta.
+> **Nota:** Si utilizas Gmail para enviar correos, asegúrate de generar y colocar una **Contraseña de aplicación** de Google, no la contraseña general de tu cuenta de correo.
 
 ---
 
-## 3. Ejecutar el backend con Docker
-
-Desde la raíz del backend ejecuta:
-
-```bash
-docker compose up --build
-```
-
-Cuando termine, deben estar activos estos contenedores:
-
-```text
-codffee-backend
-codffee-mysql
-```
-
-Puedes verificarlo con:
-
-```bash
-docker ps
-```
-
----
-
-## 4. Abrir Swagger UI
-
-Con el backend ejecutándose, abre:
-
-```text
-http://localhost:8080/swagger-ui/index.html
-```
-
-Desde Swagger se pueden probar los endpoints del backend.
-
----
-
-## 5. Cuentas iniciales
-
-El sistema crea automáticamente usuarios iniciales al arrancar.
-
-### Administrador
-
-```text
-Correo: admin@codffee.com
-Contraseña: 123456
-Rol: ADMIN
-```
-
-### Personal de cafetería
-
-```text
-Correo: personal@codffee.com
-Contraseña: 123456
-Rol: PERSONAL
-```
-
-### Cliente
-
-```text
-Correo: cliente@codffee.com
-Contraseña: 123456
-Rol: CLIENTE
-```
-
----
-
-## 6. Iniciar sesión en Swagger
-
-En Swagger busca:
-
-```http
-POST /api/auth/login
-```
-
-Ejemplo para administrador:
-
-```json
-{
-  "correo": "admin@codffee.com",
-  "contrasena": "123456"
-}
-```
-
-Ejemplo para cliente:
-
-```json
-{
-  "correo": "cliente@codffee.com",
-  "contrasena": "123456"
-}
-```
-
-La respuesta incluirá un token JWT:
-
-```json
-{
-  "mensaje": "Inicio de sesión exitoso",
-  "token": "TOKEN_JWT",
-  "tipoToken": "Bearer",
-  "id": 1,
-  "nombre": "Administrador Codffee",
-  "correo": "admin@codffee.com",
-  "rol": "ADMIN"
-}
-```
-
-Copia el valor de `token`.
-
----
-
-## 7. Autorizar Swagger con JWT
-
-En Swagger presiona el botón:
-
-```text
-Authorize
-```
-
-Pega el token con este formato:
-
-```text
-Bearer TOKEN_JWT
-```
-
-Luego presiona **Authorize** y después **Close**.
-
----
-
-## 8. Pruebas principales en Swagger
-
-### Consultar productos disponibles
-
-Endpoint:
-
-```http
-GET /api/productos/disponibles
-```
-
-Sirve para ver los productos que puede pedir un cliente.
-
----
-
-### Crear un pedido
-
-Inicia sesión como cliente y autoriza Swagger con su token.
-
-Endpoint:
-
-```http
-POST /api/pedidos
-```
-
-Ejemplo:
-
-```json
-{
-  "usuarioId": 3,
-  "metodoPago": "EFECTIVO",
-  "observaciones": "Pasaré por el pedido en el receso",
-  "productos": [
-    {
-      "productoId": 1,
-      "cantidad": 1
-    },
-    {
-      "productoId": 2,
-      "cantidad": 1
-    }
-  ]
-}
-```
-
-Al crear el pedido, el sistema guarda la orden, calcula el total, descuenta stock y envía correo de confirmación.
-
----
-
-### Consultar pedidos
-
-Endpoint:
-
-```http
-GET /api/pedidos
-```
-
-También puedes consultar detalles de un pedido:
-
-```http
-GET /api/pedidos/{pedidoId}/detalles
-```
-
----
-
-### Cambiar estado de un pedido
-
-Inicia sesión como `ADMIN` o `PERSONAL`.
-
-Endpoint:
-
-```http
-PUT /api/pedidos/{pedidoId}/estado/{estado}
-```
-
-Estados válidos:
-
-```text
-PENDIENTE
-EN_PREPARACION
-LISTO
-ENTREGADO
-CANCELADO
-```
-
-Ejemplo:
-
-```text
-pedidoId: 1
-estado: LISTO
-```
-
-Al cambiar el estado, el sistema envía un correo al usuario.
-
----
-
-### Cancelar un pedido
-
-Endpoint:
-
-```http
-PUT /api/pedidos/{pedidoId}/cancelar
-```
-
-El sistema cambia el estado a `CANCELADO`, regresa el stock de los productos y envía correo de cancelación.
-
----
-
-### Generar reporte PDF general
-
-Inicia sesión como `ADMIN`.
-
-Endpoint:
-
-```http
-GET /api/reportes/pedidos/pdf
-```
-
-El sistema descargará un archivo PDF con el reporte general de pedidos.
-
----
-
-### Generar reporte PDF filtrado
-
-Endpoint:
-
-```http
-GET /api/reportes/pedidos/pdf/filtrado
-```
-
-Parámetros:
-
-```text
-fechaInicio
-fechaFin
-estado
-```
-
-Ejemplo:
-
-```text
-fechaInicio=2026-01-01
-fechaFin=2026-12-31
-estado=ENTREGADO
-```
-
-El parámetro `estado` es opcional.
-
----
-
-## 9. Ejecutar el frontend React
-
-Entra a la carpeta del frontend:
-
-```bash
-cd codffee-frontend
-```
-
-Instala dependencias:
-
-```bash
-npm install
-```
-
-Crea un archivo `.env` en la raíz del frontend con:
-
-```env
-VITE_API_URL=http://localhost:8080/api
-```
-
-Ejecuta el frontend:
-
-```bash
-npm run dev
-```
-
-Abre la URL que indique Vite, normalmente:
-
-```text
-http://localhost:5173
-```
-
-Puedes iniciar sesión con las mismas cuentas de prueba.
-
----
-
-## 10. Detener el proyecto
-
-Para detener los contenedores:
-
-```bash
-docker compose down
-```
-
-Para detenerlos y borrar la base de datos del contenedor:
-
-```bash
-docker compose down -v
-```
-
----
-
-## 11. Reiniciar desde cero
-
-Si quieres borrar todo y volver a crear la base con datos iniciales:
-
-```bash
-docker compose down -v
-docker compose up --build
-```
-
----
-
-## 12. Comandos útiles
-
-Ver contenedores activos:
-
+## 4. Ejecución del Backend con Docker
+
+Para levantar la base de datos PostgreSQL local y compilar/ejecutar el backend en un contenedor:
+
+1.  Navega a la carpeta del backend:
+    ```bash
+    cd eventos_backend
+    ```
+2.  Levanta los servicios con Docker Compose:
+    ```bash
+    docker compose up --build
+    ```
+
+Esto iniciará dos contenedores:
+*   `zentry-postgres`: Base de datos PostgreSQL en el puerto `5432`.
+*   `eventos-backend`: Servidor Spring Boot en el puerto `8080`.
+
+Puedes verificar que estén corriendo usando:
 ```bash
 docker ps
 ```
 
-Ver logs del backend:
-
-```bash
-docker logs -f codffee-backend
-```
-
-Ver logs de MySQL:
-
-```bash
-docker logs -f codffee-mysql
+### Documentación del API (Swagger UI)
+Una vez levantado el backend, puedes acceder a la interfaz de Swagger para ver y probar todos los endpoints disponibles:
+```text
+http://localhost:8080/documentacion/swagger-ui/index.html
 ```
 
 ---
 
-## 13. Problemas comunes
+## 5. Cuentas y Roles de Prueba Iniciales
 
-### Error 403 Forbidden
+El sistema se encarga de poblar automáticamente la base de datos con roles y usuarios de prueba al arrancar por primera vez (`DataInitializer`). Las cuentas disponibles son:
 
-El login fue correcto, pero el usuario no tiene permiso para ese endpoint.
+### 1. Administrador (ADMIN)
+*   **Nombre de usuario:** `admin`
+*   **Correo:** `admin@zentry.com`
+*   **Contraseña:** `admin2026`
+*   **Funciones:** Gestión total de usuarios, roles, eventos y visualización de reportes globales.
 
-Ejemplo: un usuario `CLIENTE` no puede consultar:
+### 2. Anfitrión (ANFITRION)
+*   **Nombre de usuario:** `organizador`
+*   **Correo:** `anfitrion@zentry.com`
+*   **Contraseña:** `eventos2026`
+*   **Funciones:** Creación de eventos, registro de invitados e invitaciones, envío automático de correos de invitación y descarga de reportes de asistencia en PDF.
 
-```http
-GET /api/usuarios
-```
+### 3. Personal (STAFF)
+*   **Nombre de usuario:** `staff`
+*   **Correo:** `staff@zentry.com`
+*   **Contraseña:** `staff2026`
+*   **Funciones:** Control de accesos y escaneo de códigos QR en tiempo real desde la cámara del frontend.
 
-Ese endpoint requiere rol `ADMIN`.
+---
 
-### No llegan correos
+## 6. Ejecución del Frontend (Angular)
 
-Revisa en `.env`:
+Para ejecutar el frontend de manera local en modo desarrollo:
 
-```env
-SPRING_MAIL_USERNAME=TU_CORREO@gmail.com
-SPRING_MAIL_PASSWORD=TU_PASSWORD_DE_APLICACION
-```
+1.  Navega a la carpeta del frontend:
+    ```bash
+    cd eventos_frontend
+    ```
+2.  Instala las dependencias:
+    ```bash
+    npm install
+    ```
+3.  Verifica que el archivo de configuración de desarrollo `src/environments/environment.ts` apunte a tu API local:
+    ```typescript
+    export const environment = {
+      production: false,
+      apiUrl: 'http://localhost:8080/api'
+    };
+    ```
+4.  Inicia la aplicación:
+    ```bash
+    npm run start
+    ```
 
-Si usas Gmail, asegúrate de usar contraseña de aplicación.
-
-### Swagger no abre
-
-Verifica que el backend esté activo:
-
-```bash
-docker ps
-docker logs -f codffee-backend
+El servidor de desarrollo de Angular estará disponible en:
+```text
+http://localhost:4200
 ```
 
 ---
 
-## 14. Flujo recomendado para demostrar el proyecto
+## 7. Flujo Principal de Trabajo del Proyecto
 
-1. Levantar backend con Docker.
-2. Abrir Swagger UI.
-3. Iniciar sesión como cliente.
-4. Consultar productos disponibles.
-5. Crear un pedido.
-6. Verificar correo de confirmación.
-7. Iniciar sesión como personal.
-8. Cambiar estado del pedido a `LISTO`.
-9. Verificar correo de actualización.
-10. Iniciar sesión como administrador.
-11. Generar reporte PDF general o filtrado.
-12. Probar login desde el frontend React.
-# Proyecto-Eventos
+Para demostrar todas las características integradas de la plataforma:
+
+1.  **Creación de Evento:** Inicia sesión con la cuenta del Anfitrión (`organizador` / `eventos2026`). Crea un nuevo evento ingresando nombre, fecha, lugar y una imagen promocional.
+2.  **Registro de Invitado e Invitación:** En el mismo panel de Anfitrión, agrega un nuevo invitado proporcionando su nombre y correo. Asócialo al evento creado. Esto generará una invitación y enviará de inmediato un correo electrónico al invitado con el código QR único (enlace gráfico autogenerado).
+3.  **Control de Acceso (Escaneo QR):**
+    *   Inicia sesión con la cuenta del Personal de Staff (`staff` / `staff2026`).
+    *   Ingresa a la sección del escáner y otorga permisos de cámara al navegador.
+    *   Presenta el código QR de la invitación recibida en el correo.
+    *   **Comportamiento en pantalla:** Al detectar el código, el escáner se bloqueará temporalmente mostrando un indicador de carga (spinner). Una vez validado con el backend, mostrará de forma visual si la validación es correcta (palomita verde) o incorrecta (cruz roja con la descripción del error, ej. *invitación ya escaneada*, *evento en fecha incorrecta* o *invitado bloqueado*). Luego, se desbloqueará para continuar con el siguiente código.
+4.  **Generación de Reportes:** El Anfitrión puede ingresar a la vista del evento y descargar un reporte de asistencia en formato PDF generado localmente mediante `jsPDF` con los datos obtenidos en `/api/reportes/asistencia/evento/{idEvento}`.
+
+---
+
+## 8. Comandos Útiles
+
+*   **Detener contenedores:**
+    ```bash
+    docker compose down
+    ```
+*   **Detener contenedores borrando la base de datos (limpieza completa):**
+    ```bash
+    docker compose down -v
+    ```
+*   **Ver logs de la aplicación Spring Boot:**
+    ```bash
+    docker logs -f eventos-backend
+    ```
+*   **Ver logs del contenedor PostgreSQL:**
+    ```bash
+    docker logs -f zentry-postgres
+    ```
+
+---
+
+## 9. Despliegue en la Nube
+
+Para realizar el despliegue del clúster de base de datos en **Yugabyte Cloud**, el backend en **Render** (compilación automática con el Dockerfile) y el frontend en **Netlify** (con redirección de rutas y CORS enlazados), consulta la guía detallada ubicada en el archivo:
+
+*   [GuiaDespliegue.md](file:///Users/david/Documents/WebClient&BackendDevelopmentFramework/ProyectoEventos/GuiaDespliegue.md)

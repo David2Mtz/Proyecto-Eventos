@@ -1,0 +1,29 @@
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Carpetas y configuraciones de IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Archivos y dependencias de Node en la raíz (creados accidentalmente)
+node_modules/
+package.json
+package-lock.json
+
+# Archivos privados y credenciales locales
+zentrybd credentials.txt
+*.zip
+eventos_backend.zip
+eventos_backend/.env
+
+# Documentación excluida a petición del usuario
+GuiaDespliegue.md
+
+# Archivos PDF o de avance local
+_Proyecto__Avance1.pdf
+*.pdf
