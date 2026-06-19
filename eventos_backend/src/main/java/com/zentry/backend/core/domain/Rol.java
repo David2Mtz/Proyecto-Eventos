@@ -10,18 +10,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "Rol")
+@Table(name = "rol")
 public class Rol implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_rol")
     private Long idRol;
 
-    @Column(length = 50, nullable = false)
+    @Column(name = "nombre_rol", length = 50, nullable = false)
     private String nombreRol;
 
-    @Column(nullable = false, length = 150)
+    @Column(name = "descripcion_rol", nullable = false, length = 150)
     private String descripcionRol;
 
-    @Column(nullable = false)
+    @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha;
 }

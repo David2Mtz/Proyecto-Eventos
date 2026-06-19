@@ -5,12 +5,16 @@ import com.zentry.backend.core.domain.Acceso;
 import com.zentry.backend.core.domain.EstadoInvitacion;
 import com.zentry.backend.core.domain.Invitacion;
 import com.zentry.backend.core.domain.Usuario;
+import com.zentry.backend.core.domain.Invitado;
 import com.zentry.backend.core.exceptions.RecursoNoEncontradoException;
 import com.zentry.backend.core.exceptions.SolicitudInvalidaException;
 import com.zentry.backend.features.acceso.repository.AccesoRepository;
+import com.zentry.backend.features.evento.repository.EventoRepository;
 import com.zentry.backend.features.invitacion.repository.InvitacionRepository;
+import com.zentry.backend.features.invitado.repository.InvitadoRepository;
 import com.zentry.backend.features.usuario.repository.UsuarioRepository;
 import com.zentry.backend.features.correo.service.CorreoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,31 +22,36 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 public class AccesoService {
 
     private final AccesoRepository accesoRepository;
     private final InvitacionRepository invitacionRepository;
     private final UsuarioRepository usuarioRepository;
     private final CorreoService correoService;
+    private final InvitadoRepository invitadoRepository;
+    private final EventoRepository eventoRepository;
 
     public AccesoService(
             AccesoRepository accesoRepository,
             InvitacionRepository invitacionRepository,
             UsuarioRepository usuarioRepository,
-            CorreoService correoService
-    ) {
+            CorreoService correoService,
+            InvitadoRepository invitadoRepository, EventoRepository eventoRepository) {
         this.accesoRepository = accesoRepository;
         this.invitacionRepository = invitacionRepository;
         this.usuarioRepository = usuarioRepository;
         this.correoService = correoService;
+        this.invitadoRepository = invitadoRepository;
+        this.eventoRepository = eventoRepository;
     }
 
     public List<Acceso> listarTodos() {
         return accesoRepository.findAll();
     }
 
-    public List<Acceso> listarPorEvento(Long idEvento) {
-        return accesoRepository.findByInvitacionEventoIdEvento(idEvento);
+    public List<Acceso> listarPorEvento(Long idInvitacion) {
+        return accesoRepository.findAllByIdInvitacion(idInvitacion);
     }
 
     @Transactional
@@ -61,8 +70,8 @@ public class AccesoService {
         invitacionRepository.save(invitacion);
 
         Acceso acceso = new Acceso();
-        acceso.setInvitacion(invitacion);
-        acceso.setStaff(staff);
+        acceso.setIdInvitacion(invitacion.getIdInvitacion());
+        acceso.setIdStaff(staff.getIdUsuario());
         acceso.setFechaHoraEntrada(LocalDateTime.now());
 
         Acceso guardado = accesoRepository.save(acceso);
@@ -73,19 +82,24 @@ public class AccesoService {
     }
 
     private void enviarCorreoAccesoUtilizado(Invitacion invitacion) {
+        Invitado invitado = invitadoRepository.findById(invitacion.getIdInvitado())
+                .orElseThrow(() -> new RecursoNoEncontradoException("Invitado no encontrado con ID: " + invitacion.getIdInvitado()));
+
+        var evento = eventoRepository.findById(invitacion.getIdEvento())
+                .orElseThrow(() -> new RecursoNoEncontradoException("Evento no encontrado con ID: " + invitacion.getIdEvento()));
+
         String asunto = "¡Bienvenido! Tu código de acceso ha sido validado";
         String mensaje = String.format(
-                "Hola %s,\n\nTu invitación para el evento '%s' ha sido utilizada correctamente hoy %s.\n\n¡Disfruta del evento!",
-                invitacion.getInvitado().getNombre(),
-                invitacion.getEvento().getNombreEvento(),
+                "Hola %s,\n\nTu invitación para el evento '%s' ha sido utilizada correctamente hoy a las %s.\n\n¡Disfruta del evento!",
+                invitado.getNombre(),
+                evento.getNombreEvento(),
                 LocalDateTime.now()
         );
-
         try {
-            correoService.enviarCorreoSimple(invitacion.getInvitado().getCorreo(), asunto, mensaje);
+            correoService.enviarCorreoSimple(invitado.getCorreo(), asunto, mensaje);
         } catch (Exception e) {
             // Log error but don't fail the transaction
-            System.err.println("Error al enviar correo de acceso: " + e.getMessage());
+            log.error(" No se pudo mandar el correo de confirmación de utilización "+ e.getMessage());
         }
     }
 }

@@ -27,7 +27,7 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
-        Usuario usuario = usuarioRepository.findByNombreDeUsuario(loginRequest.getUsername())
+        Usuario usuario = usuarioRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new SolicitudInvalidaException("Usuario o contraseña incorrectos"));
 
         if (usuario.getBloqueado()) {

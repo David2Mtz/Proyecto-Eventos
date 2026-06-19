@@ -23,9 +23,9 @@ public class AccesoController {
         return accesoService.listarTodos();
     }
 
-    @GetMapping("/evento/{idEvento}")
-    public List<Acceso> listarPorEvento(@PathVariable Long idEvento) {
-        return accesoService.listarPorEvento(idEvento);
+    @GetMapping("/evento/{idInvitacion}")
+    public List<Acceso> listarPorEvento(@PathVariable Long idInvitacion) {
+        return accesoService.listarPorEvento(idInvitacion);
     }
 
     @PostMapping("/validar")

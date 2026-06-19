@@ -1,40 +1,99 @@
-<div class="dashboard-page">
-  <header class="dashboard-header">
-    <h1>Validación de <span class="accent">Acceso</span></h1>
-    <p>Escanea o ingresa el token del invitado para registrar su entrada.</p>
+<div class="staff-dashboard">
+  <header class="mobile-header">
+    <div class="header-content">
+      <h1>Panel de <span class="accent">Escaneo</span></h1>
+      <button class="btn-secondary-sm" (click)="idEventoSeleccionado.set(null)">Cambiar Evento</button>
+    </div>
   </header>
 
-  <div class="scanner-container">
-    <div class="input-card">
-      <h3>Ingreso Manual de Token</h3>
-      <div class="form-group">
-        <input 
-          type="text" 
-          [(ngModel)]="qrToken" 
-          placeholder="Ej: 550e8400-e29b-41d4-a716-446655440000"
-          (keyup.enter)="validarAcceso()"
-        >
-        <button class="btn-primary" (click)="validarAcceso()" [disabled]="isLoading()">
-          {{ isLoading() ? 'Validando...' : 'Validar Entrada' }}
-        </button>
+  @if (!idEventoSeleccionado()) {
+    <div class="event-picker-mobile">
+      <h3>Selecciona un Evento</h3>
+      <div class="event-list">
+        @for (e of eventos(); track e.idEvento) {
+          <button class="event-btn" (click)="seleccionarEvento(e.idEvento!)">
+            <span class="event-name">{{ e.nombreEvento }}</span>
+            <span class="event-detail">📍 {{ e.lugar }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  } @else {
+    <main class="scan-container">
+      <div class="scanner-wrapper">
+        <zxing-scanner
+          [enable]="scannerEnabled()"
+          [formats]="allowedFormats"
+          (scanSuccess)="handleQrCodeResult($event)"
+          (hasDevices)="onHasDevices($event)"
+          (permissionResponse)="onPermissionResponse($event)"
+        ></zxing-scanner>
+        
+        @if (scanState() === 'idle') {
+          <div class="scanner-overlay">
+            <div class="scan-region"></div>
+            <p class="scan-tip">Apunta al código QR del invitado</p>
+          </div>
+        }
+
+        @if (scanState() !== 'idle') {
+          <div class="validation-overlay" [class.state-validating]="scanState() === 'validating'" [class.state-success]="scanState() === 'success'" [class.state-error]="scanState() === 'error'">
+            @if (scanState() === 'validating') {
+              <div class="val-content">
+                <div class="spinner-large"></div>
+                <p class="msg-title" style="margin-top: 1rem;">Validando...</p>
+              </div>
+            }
+            @if (scanState() === 'success') {
+              <div class="val-content success-animation">
+                <span class="checkmark">✔</span>
+                <p class="msg-title">Acceso Válido</p>
+                <p class="msg-desc">Entrada registrada con éxito.</p>
+                <button class="btn-primary-sm" (click)="continuarEscaneo()">Siguiente</button>
+              </div>
+            }
+            @if (scanState() === 'error') {
+              <div class="val-content error-animation">
+                <span class="error-cross">✘</span>
+                <p class="msg-title">Acceso Denegado</p>
+                <p class="msg-desc">{{ scanErrorMessage() }}</p>
+                <button class="btn-danger-sm" (click)="continuarEscaneo()">Siguiente</button>
+              </div>
+            }
+          </div>
+        }
       </div>
 
-      @if (errorMessage()) {
-        <div class="alert error">
-          <span class="icon">❌</span> {{ errorMessage() }}
+      <div class="manual-input">
+        <div class="input-card">
+          <input type="text" [(ngModel)]="qrToken" placeholder="Ingreso manual de código">
+          <button class="btn-primary" (click)="validarAccesoManual()" [disabled]="scanState() === 'validating'">
+            {{ scanState() === 'validating' ? 'Validando...' : 'Validar' }}
+          </button>
         </div>
-      }
+      </div>
 
-      @if (validationResult()) {
-        <div class="alert success">
-          <span class="icon">✅</span>
-          <div>
-            <strong>Acceso Autorizado</strong>
-            <p>Invitado: {{ validationResult().invitacion.invitado.nombre }}</p>
-            <p>Evento: {{ validationResult().invitacion.evento.nombreEvento }}</p>
-          </div>
+      <section class="guests-summary">
+        <div class="section-header">
+          <h3>Asistencia</h3>
+          <button class="btn-text" (click)="imprimirPdf()">📥 PDF</button>
         </div>
-      }
-    </div>
-  </div>
+        <div class="compact-list">
+          @for (inv of invitaciones(); track inv.idInvitacion) {
+            <div class="guest-item" [class.arrived]="inv.estado === 'UTILIZADO'">
+              <div class="guest-info">
+                <div class="name-container">
+                  <span class="status-dot" [class.dot-pendiente]="inv.estado === 'PENDIENTE'" [class.dot-utilizado]="inv.estado === 'UTILIZADO'"></span>
+                  <span class="name">{{ inv.invitado?.nombre }}</span>
+                </div>
+                <span class="status">{{ inv.estado === 'UTILIZADO' ? '✅ Llegó' : '⏳ Pendiente' }}</span>
+              </div>
+            </div>
+          } @empty {
+            <div class="no-guests">No hay invitados registrados para este evento.</div>
+          }
+        </div>
+      </section>
+    </main>
+  }
 </div>

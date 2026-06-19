@@ -3,8 +3,14 @@ package com.zentry.backend.core.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 @Entity
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "invitado")
 public class Invitado {
 
@@ -22,36 +28,4 @@ public class Invitado {
     @Column(nullable = false, length = 150)
     private String correo;
 
-    public Invitado() {
-    }
-
-    public Invitado(Long idInvitado, String nombre, String correo) {
-        this.idInvitado = idInvitado;
-        this.nombre = nombre;
-        this.correo = correo;
-    }
-
-    public Long getIdInvitado() {
-        return idInvitado;
-    }
-
-    public void setIdInvitado(Long idInvitado) {
-        this.idInvitado = idInvitado;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
 }

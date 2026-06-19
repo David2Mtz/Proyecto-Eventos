@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface AccesoRepository extends JpaRepository<Acceso, Long> {
-    List<Acceso> findByInvitacionEventoIdEvento(Long idEvento);
+    List<Acceso> findAllByIdInvitacion(Long idInvitacion);
 }

@@ -42,4 +42,9 @@ public class InvitacionController {
     public Invitacion crear(@Valid @RequestBody InvitacionRequest request) {
         return invitacionService.crearInvitacion(request);
     }
+
+    @DeleteMapping("/{id}")
+    public void eliminar(@PathVariable Long id) {
+        invitacionService.eliminarInvitacion(id);
+    }
 }

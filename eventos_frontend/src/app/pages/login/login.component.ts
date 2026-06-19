@@ -29,10 +29,16 @@ export class LoginComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.authService.login({ correo: this.email, password: this.password }).subscribe({
+    this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: (response) => {
-        console.log('Login exitoso:', response);
-        this.router.navigate(['/inicio']);
+        console.log('Login exitoso, redirigiendo a Home...', response);
+        this.router.navigate(['/']).then(navigated => {
+          if (navigated) {
+            console.log('Navegación a Home exitosa');
+          } else {
+            console.error('Navegación a Home fallida');
+          }
+        });
       },
       error: (err) => {
         console.error('Error de login:', err);

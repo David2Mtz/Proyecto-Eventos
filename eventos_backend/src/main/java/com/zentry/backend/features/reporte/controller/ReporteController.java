@@ -1,10 +1,11 @@
 package com.zentry.backend.features.reporte.controller;
 
+import com.zentry.backend.features.reporte.dto.ReporteAsistenciaDTO;
 import com.zentry.backend.features.reporte.service.ReporteService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/reportes")
@@ -16,13 +17,9 @@ public class ReporteController {
         this.reporteService = reporteService;
     }
 
-    @GetMapping("/asistencia/evento/{idEvento}/pdf")
-    public ResponseEntity<byte[]> generarReporteAsistencia(@PathVariable Long idEvento) {
-        byte[] pdf = reporteService.generarReporteAsistenciaPdf(idEvento);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte-asistencia-evento-" + idEvento + ".pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdf);
+    @GetMapping("/asistencia/evento/{idEvento}")
+    public ResponseEntity<List<ReporteAsistenciaDTO>> obtenerAsistentes(@PathVariable Long idEvento) {
+        List<ReporteAsistenciaDTO> asistentes = reporteService.obtenerAsistenciaEvento(idEvento);
+        return ResponseEntity.ok(asistentes);
     }
 }

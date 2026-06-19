@@ -1,27 +1,53 @@
 <main class="main-content">
   <div class="container">
-    <section class="hero">
-      <h1>Bienvenido a <span class="accent">Zentry Eventos</span></h1>
-      <p>La plataforma definitiva para la gestión y control de asistencia a tus eventos más importantes.</p>
-      <div class="hero-actions">
-        <button class="btn-primary">Explorar Eventos</button>
-        <button class="btn-secondary">Saber más</button>
-      </div>
+    <section class="hero" [class.logged-in]="authService.isLoggedIn()">
+      <h1>{{ welcomeMessage() }}</h1>
+      <p>{{ roleDescription() }}</p>
+      
+      @if (!authService.isLoggedIn()) {
+        <div class="hero-actions">
+          <button class="btn-primary" routerLink="/login">Comenzar Ahora</button>
+          <button class="btn-secondary">Saber más</button>
+        </div>
+      }
     </section>
 
-    <section class="features">
-      <div class="card">
-        <h3>Gestión de Invitados</h3>
-        <p>Controla fácilmente quién asiste a tus eventos con nuestro sistema de invitaciones digitales.</p>
+    @if (authService.isLoggedIn()) {
+      <div class="dashboard-container">
+        <!-- Render specific tools based on roles -->
+        @if (hasRole('ADMIN')) {
+          <app-admin-dashboard></app-admin-dashboard>
+        }
+        
+        @if (hasRole('ANFITRION')) {
+          <app-anfitrion-dashboard></app-anfitrion-dashboard>
+        }
+        
+        @if (hasRole('STAFF')) {
+          <div class="staff-callout">
+            <div class="callout-card">
+              <h3>📱 Panel de Escaneo Móvil</h3>
+              <p>Has iniciado sesión como Staff. Para escanear invitaciones y gestionar accesos, utiliza nuestro panel optimizado para dispositivos móviles.</p>
+              <button class="btn-primary" routerLink="/staff">Ir al Panel de Escaneo</button>
+            </div>
+          </div>
+        }
       </div>
-      <div class="card">
-        <h3>Código QR</h3>
-        <p>Validación rápida y segura mediante códigos QR generados automáticamente para cada invitado.</p>
-      </div>
-      <div class="card">
-        <h3>Reportes en PDF</h3>
-        <p>Genera informes detallados de asistencia al finalizar tus eventos con un solo clic.</p>
-      </div>
-    </section>
+    } @else {
+      <section class="features">
+        <div class="card">
+          <h3>Gestión de Invitados</h3>
+          <p>Controla fácilmente quién asiste a tus eventos con nuestro sistema de invitaciones digitales.</p>
+        </div>
+        <div class="card">
+          <h3>Código QR</h3>
+          <p>Validación rápida y segura mediante códigos QR generados automáticamente para cada invitado.</p>
+        </div>
+        <div class="card">
+          <h3>Reportes en PDF</h3>
+          <p>Genera informes detallados de asistencia al finalizar tus eventos con un solo clic.</p>
+        </div>
+      </section>
+    }
   </div>
 </main>

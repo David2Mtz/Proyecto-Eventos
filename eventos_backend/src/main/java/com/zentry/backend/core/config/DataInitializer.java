@@ -62,6 +62,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void crearUsuariosIniciales() {
+        // 1. Usuario Administrador (Gestión total)
         if (!usuarioRepository.existsByNombreDeUsuario("admin")) {
             Rol adminRol = rolRepository.findByNombreRol("ADMIN").orElse(null);
             Set<Rol> roles = new HashSet<>();
@@ -70,7 +71,7 @@ public class DataInitializer implements CommandLineRunner {
             Usuario admin = Usuario.builder()
                     .nombreDeUsuario("admin")
                     .email("admin@zentry.com")
-                    .claveDeUsuario(passwordEncoder.encode("ipn2026"))
+                    .claveDeUsuario(passwordEncoder.encode("admin2026"))
                     .bloqueado(false)
                     .habilitado(true)
                     .roles(roles)
@@ -78,29 +79,47 @@ public class DataInitializer implements CommandLineRunner {
             usuarioRepository.save(admin);
         }
 
-        if (!usuarioRepository.existsByNombreDeUsuario("alumno")) {
-            Rol userRol = rolRepository.findByNombreRol("USER").orElse(null);
+        // 2. Usuario Anfitrión (Organizador de eventos)
+        if (!usuarioRepository.existsByNombreDeUsuario("organizador")) {
+            Rol anfitrionRol = rolRepository.findByNombreRol("ANFITRION").orElse(null);
             Set<Rol> roles = new HashSet<>();
-            if (userRol != null) roles.add(userRol);
+            if (anfitrionRol != null) roles.add(anfitrionRol);
 
-            Usuario alumno = Usuario.builder()
-                    .nombreDeUsuario("alumno")
-                    .email("alumno@zentry.com")
-                    .claveDeUsuario(passwordEncoder.encode("escom2026"))
+            Usuario anfitrion = Usuario.builder()
+                    .nombreDeUsuario("organizador")
+                    .email("anfitrion@zentry.com")
+                    .claveDeUsuario(passwordEncoder.encode("eventos2026"))
                     .bloqueado(false)
                     .habilitado(true)
                     .roles(roles)
                     .build();
-            usuarioRepository.save(alumno);
+            usuarioRepository.save(anfitrion);
+        }
+
+        // 3. Usuario Staff (Encargado de escanear QR / Control de acceso)
+        if (!usuarioRepository.existsByNombreDeUsuario("staff")) {
+            Rol staffRol = rolRepository.findByNombreRol("STAFF").orElse(null);
+            Set<Rol> roles = new HashSet<>();
+            if (staffRol != null) roles.add(staffRol);
+
+            Usuario staff = Usuario.builder()
+                    .nombreDeUsuario("staff")
+                    .email("staff@zentry.com")
+                    .claveDeUsuario(passwordEncoder.encode("staff2026"))
+                    .bloqueado(false)
+                    .habilitado(true)
+                    .roles(roles)
+                    .build();
+            usuarioRepository.save(staff);
         }
     }
 
     private void imprimirHashesPasswords() {
-        System.out.println("Generando los Hash para las claves de usuario:");
-        System.out.println("Clave = admin : " + passwordEncoder.encode("admin"));
-        System.out.println("Clave = limitado : " + passwordEncoder.encode("limitado"));
-        System.out.println("Clave = ezja : " + passwordEncoder.encode("ezja"));
-        System.out.println("Clave = escom2026 : " + passwordEncoder.encode("escom2026"));
-        System.out.println("Clave = ipn2026 : " + passwordEncoder.encode("ipn2026"));
+        System.out.println("=================================================");
+        System.out.println("USUARIOS INICIALES CREADOS:");
+        System.out.println("Admin: admin@zentry.com / admin2026");
+        System.out.println("Anfitrión: anfitrion@zentry.com / eventos2026");
+        System.out.println("Staff: staff@zentry.com / staff2026");
+        System.out.println("=================================================");
     }
 }

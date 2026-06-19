@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface InvitacionRepository extends JpaRepository<Invitacion, Long> {
     Optional<Invitacion> findByQrToken(String qrToken);
-    List<Invitacion> findByEventoIdEvento(Long idEvento);
+    List<Invitacion> findInvitacionsByIdEvento(Long idEvento);
 }

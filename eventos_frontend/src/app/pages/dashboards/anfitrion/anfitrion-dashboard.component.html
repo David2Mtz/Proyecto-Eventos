@@ -1,0 +1,145 @@
+<div class="dashboard-page">
+  <header class="dashboard-header">
+    <h1>Panel de <span class="accent">Anfitrión</span></h1>
+    <p>Gestiona tus eventos y crea nuevas experiencias.</p>
+  </header>
+
+  <section class="create-event-section">
+    @if (!editando()) {
+      <h2>Crear Nuevo Evento</h2>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombre del Evento</label>
+            <input type="text" [(ngModel)]="nuevoEvento.nombreEvento" placeholder="Ej: Boda Real">
+          </div>
+          <div class="form-group">
+            <label>Lugar</label>
+            <input type="text" [(ngModel)]="nuevoEvento.lugar" placeholder="Ej: Salón Versalles">
+          </div>
+          <div class="form-group">
+            <label>Fecha y Hora</label>
+            <input type="datetime-local" [(ngModel)]="nuevoEvento.fecha">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" (click)="crear()">Crear Evento</button>
+        </div>
+      </div>
+    } @else {
+      <div class="edit-header">
+        <h2>Editar Evento</h2>
+        <button class="btn-outline" (click)="cancelarEdicion()">Cancelar</button>
+      </div>
+      <div class="form-card edit-mode">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombre del Evento</label>
+            <input type="text" [(ngModel)]="eventoAEditar.nombreEvento">
+          </div>
+          <div class="form-group">
+            <label>Lugar</label>
+            <input type="text" [(ngModel)]="eventoAEditar.lugar">
+          </div>
+          <div class="form-group">
+            <label>Fecha y Hora</label>
+            <input type="datetime-local" [(ngModel)]="eventoAEditar.fecha">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" (click)="actualizar()">Guardar Cambios</button>
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="my-events">
+    <h2>Mis Eventos</h2>
+    <div class="events-grid">
+      @for (evento of eventos(); track evento.idEvento) {
+        <div class="event-card">
+          <div class="event-info">
+            <h3>{{ evento.nombreEvento }}</h3>
+            <p>📍 {{ evento.lugar }}</p>
+            <p>📅 {{ evento.fecha | date:'short' }}</p>
+          </div>
+          <div class="event-actions">
+            <button class="btn-secondary" (click)="editar(evento)">Editar</button>
+            <button class="btn-primary-outline" (click)="abrirInvitados(evento)">👥 Invitados</button>
+            <button class="btn-outline-danger" (click)="eliminar(evento.idEvento!)">Eliminar</button>
+          </div>
+        </div>
+      } @empty {
+        <p>Aún no has creado eventos.</p>
+      }
+    </div>
+  </section>
+
+  <!-- Modal Gestión de Invitados -->
+  @if (verInvitados()) {
+    <div class="form-overlay">
+      <div class="form-card admin-modal guest-management">
+        <div class="modal-header">
+          <h3>Invitados: <span class="accent">{{ eventoSeleccionado()?.nombreEvento }}</span></h3>
+          <button class="btn-close" (click)="cerrarInvitados()">×</button>
+        </div>
+
+        <div class="guest-form">
+          <h4>Agregar Invitado</h4>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" [(ngModel)]="nuevoInvitado.nombre" placeholder="Nombre completo">
+            </div>
+            <div class="form-group">
+              <label>Correo</label>
+              <input type="email" [(ngModel)]="nuevoInvitado.correo" placeholder="Correo electrónico">
+            </div>
+          </div>
+          <button class="btn-primary" (click)="agregarInvitado()" [disabled]="isAddingInvitado()">
+            @if (isAddingInvitado()) {
+              <span class="spinner"></span> Procesando...
+            } @else {
+              Enviar Invitación
+            }
+          </button>
+        </div>
+
+        <div class="guest-list-table">
+          <h4>Lista de Invitados</h4>
+          <button class="btn-primary" (click)="descargarListaAcceso()" style="margin-bottom: 1rem;">Descargar PDF de Asistencia</button>
+          <div class="table-container">
+            <table class="zentry-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Correo</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (inv of invitaciones(); track inv.idInvitacion) {
+                  <tr>
+                    <td>{{ inv.invitado?.nombre }}</td>
+                    <td>{{ inv.invitado?.correo }}</td>
+                    <td>
+                      <span class="badge" [class]="inv.estado">{{ inv.estado }}</span>
+                    </td>
+                    <td>
+                      <button class="btn-icon delete" (click)="quitarInvitado(inv.idInvitacion)">🗑️</button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="4" class="text-center">No hay invitados registrados.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -14,24 +14,33 @@ export class DashboardDispatcherComponent implements OnInit {
 
   ngOnInit() {
     const user = this.authService.currentUser();
+    console.log('Dispatcher: Usuario actual detectado:', user);
     
     if (!user) {
+      console.warn('Dispatcher: No hay usuario en el signal, redirigiendo a login');
       this.router.navigate(['/login']);
       return;
     }
 
-    switch (user.rol) {
-      case 'ADMIN':
-        this.router.navigate(['/admin']);
-        break;
-      case 'ANFITRION':
-        this.router.navigate(['/anfitrion']);
-        break;
-      case 'STAFF':
-        this.router.navigate(['/staff']);
-        break;
-      default:
-        this.router.navigate(['/']);
+    if (!user.roles || user.roles.length === 0) {
+      console.error('Dispatcher: El usuario no tiene roles asignados:', user);
+      this.router.navigate(['/']);
+      return;
+    }
+
+    // Convertimos todos los roles a mayúsculas para comparar
+    const userRoles = user.roles.map(r => r.toUpperCase());
+    console.log('Dispatcher: Roles detectados:', userRoles);
+
+    if (userRoles.includes('ADMIN')) {
+      this.router.navigate(['/admin']);
+    } else if (userRoles.includes('ANFITRION')) {
+      this.router.navigate(['/anfitrion']);
+    } else if (userRoles.includes('STAFF')) {
+      this.router.navigate(['/staff']);
+    } else {
+      console.warn('Dispatcher: Ningún rol reconocido para navegación:', userRoles);
+      this.router.navigate(['/']);
     }
   }
 }

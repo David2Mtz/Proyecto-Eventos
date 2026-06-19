@@ -10,32 +10,33 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "Usuario")
+@Table(name = "usuario")
 public class Usuario implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_usuario")
     private Long idUsuario;
 
-    @Column(nullable = false)
-    private Boolean bloqueado;
+    @Column(name = "bloqueado", nullable = false)
+    private Boolean bloqueado = false;
 
-    @Column(nullable = false, length = 150)
+    @Column(name = "email", nullable = false, length = 150)
     private String email;
 
-    @Column(nullable = false)
-    private Boolean habilitado;
+    @Column(name = "habilitado", nullable = false)
+    private Boolean habilitado = true;
 
-    @Column(nullable = false, length = 200)
+    @Column(name = "clave_de_usuario", nullable = false, length = 200)
     private String claveDeUsuario;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "nombre_de_usuario", nullable = false, length = 50)
     private String nombreDeUsuario;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "UsuarioRol",
-        joinColumns = @JoinColumn(name = "idUsuario"),
-        inverseJoinColumns = @JoinColumn(name = "idRol")
+        name = "usuario_rol",
+        joinColumns = @JoinColumn(name = "id_usuario"),
+        inverseJoinColumns = @JoinColumn(name = "id_rol")
     )
     private Set<Rol> roles;
 }

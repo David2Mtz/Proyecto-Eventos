@@ -8,9 +8,11 @@ export interface LoginResponse {
   token: string;
   tipoToken: string;
   idUsuario: number;
-  nombre: string;
+  nombreDeUsuario: string;
   correo: string;
-  rol: string;
+  roles: string[];
+  // Keep rol for internal compatibility if needed, but primary is roles
+  rol?: string; 
 }
 
 @Injectable({

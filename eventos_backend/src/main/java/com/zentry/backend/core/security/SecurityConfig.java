@@ -2,6 +2,7 @@ package com.zentry.backend.core.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -21,12 +22,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/documentacion/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/api/auth/**",
@@ -36,8 +39,8 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // ADMIN is God of the system
-                        .requestMatchers("/api/eventos/**").hasAnyRole("ADMIN", "ANFITRION")
-                        .requestMatchers("/api/invitaciones/**").hasAnyRole("ADMIN", "ANFITRION")
+                        .requestMatchers("/api/eventos/**").hasAnyRole("ADMIN", "ANFITRION", "STAFF")
+                        .requestMatchers("/api/invitaciones/**").hasAnyRole("ADMIN", "ANFITRION", "STAFF")
                         .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/api/reportes/**").hasAnyRole("ADMIN", "ANFITRION")
                         .requestMatchers("/api/accesos/**").hasAnyRole("ADMIN", "ANFITRION", "STAFF")

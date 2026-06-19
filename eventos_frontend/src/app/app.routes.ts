@@ -6,6 +6,8 @@ import { AdminDashboardComponent } from './pages/dashboards/admin/admin-dashboar
 import { StaffDashboardComponent } from './pages/dashboards/staff/staff-dashboard.component';
 import { authGuard, roleGuard } from './guards/auth.guard';
 
+import { AnfitrionDashboardComponent } from './pages/dashboards/anfitrion/anfitrion-dashboard.component';
+
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
@@ -21,11 +23,16 @@ export const routes: Routes = [
     data: { roles: ['ADMIN'] }
   },
   { 
+    path: 'anfitrion', 
+    component: AnfitrionDashboardComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ANFITRION'] }
+  },
+  { 
     path: 'staff', 
     component: StaffDashboardComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['STAFF'] }
   },
-  // We can add Anfitrion here too when implemented
   { path: '**', redirectTo: '' }
 ];

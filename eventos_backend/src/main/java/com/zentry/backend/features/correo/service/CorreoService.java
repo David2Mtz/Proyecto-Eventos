@@ -33,4 +33,20 @@ public class CorreoService {
             throw new SolicitudInvalidaException("No se pudo enviar el correo: " + e.getMessage());
         }
     }
+
+    public void enviarCorreoHtml(String destinatario, String asunto, String contenidoHtml) {
+        try {
+            jakarta.mail.internet.MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom(correoRemitente);
+            helper.setTo(destinatario);
+            helper.setSubject(asunto);
+            helper.setText(contenidoHtml, true);
+
+            javaMailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new SolicitudInvalidaException("No se pudo enviar el correo HTML: " + e.getMessage());
+        }
+    }
 }

@@ -19,12 +19,16 @@ export const roleGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const expectedRoles = route.data['roles'] as Array<string>;
 
-  const userRole = authService.currentUser()?.rol;
+  const userRoles = authService.currentUser()?.roles || [];
+  const upperUserRoles = userRoles.map(r => r.toUpperCase());
+  const upperExpectedRoles = expectedRoles.map(r => r.toUpperCase());
 
-  if (userRole && expectedRoles.includes(userRole)) {
+  const hasRole = upperExpectedRoles.some(role => upperUserRoles.includes(role));
+
+  if (hasRole) {
     return true;
   }
 
-  // Redirect to home if unauthorized
+  // Redirect to dispatcher if unauthorized for this specific route
   return router.parseUrl('/inicio');
 };
