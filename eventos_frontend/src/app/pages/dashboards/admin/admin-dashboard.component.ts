@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { UsuarioService, Usuario } from '../../../services/usuario.service';
 import { EventoService, Evento } from '../../../services/evento.service';
 import { InvitacionService } from '../../../services/invitacion.service';
+import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -17,6 +18,9 @@ export class AdminDashboardComponent implements OnInit {
   private usuarioService = inject(UsuarioService);
   private eventoService = inject(EventoService);
   private invitacionService = inject(InvitacionService);
+
+  // File Upload
+  selectedFile: File | null = null;
 
   // Signals
   eventos = this.eventoService.eventos;
@@ -54,7 +58,9 @@ export class AdminDashboardComponent implements OnInit {
     correo: '',
     nombreDeUsuario: '',
     claveDeUsuario: '',
-    rol: 'ANFITRION'
+    rol: 'ANFITRION',
+    bloqueado: false,
+    habilitado: true
   };
 
   // Gestión de Invitados
@@ -75,6 +81,7 @@ export class AdminDashboardComponent implements OnInit {
   openCreateEvent() {
     this.editMode.set(false);
     this.eventForm = { idEvento: 0, nombreEvento: '', lugar: '', fecha: '', idAnfitrion: '' };
+    this.selectedFile = null;
     this.showEventForm.set(true);
   }
 
@@ -87,7 +94,24 @@ export class AdminDashboardComponent implements OnInit {
       fecha: evento.fecha,
       idAnfitrion: evento.anfitrion?.idUsuario?.toString() || ''
     };
+    this.selectedFile = null;
     this.showEventForm.set(true);
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      this.selectedFile = file;
+    }
+  }
+
+  getImagenUrl(imagenUrl?: string): string {
+    if (!imagenUrl) return '';
+    if (imagenUrl.startsWith('http://') || imagenUrl.startsWith('https://')) {
+      return imagenUrl;
+    }
+    const serverUrl = environment.apiUrl.replace('/api', '');
+    return `${serverUrl}/uploads/banners/${imagenUrl}`;
   }
 
   guardarEvento() {
@@ -97,15 +121,31 @@ export class AdminDashboardComponent implements OnInit {
     formData.append('fecha', this.eventForm.fecha);
     formData.append('idAnfitrion', this.eventForm.idAnfitrion);
 
+    if (this.selectedFile) {
+      formData.append('imagen', this.selectedFile);
+    }
+
     if (this.editMode()) {
-      this.eventoService.actualizarEvento(this.eventForm.idEvento, formData).subscribe(() => {
-        Swal.fire({ title: 'Evento actualizado', icon: 'success', confirmButtonColor: '#6366f1' });
-        this.showEventForm.set(false);
+      this.eventoService.actualizarEvento(this.eventForm.idEvento, formData).subscribe({
+        next: () => {
+          Swal.fire({ title: 'Evento actualizado', icon: 'success', confirmButtonColor: '#6366f1' });
+          this.showEventForm.set(false);
+          this.selectedFile = null;
+        },
+        error: (err) => {
+          Swal.fire({ title: 'Error', text: err.error?.mensaje || 'Error al actualizar evento', icon: 'error', confirmButtonColor: '#ef4444' });
+        }
       });
     } else {
-      this.eventoService.crearEvento(formData).subscribe(() => {
-        Swal.fire({ title: 'Evento creado', icon: 'success', confirmButtonColor: '#6366f1' });
-        this.showEventForm.set(false);
+      this.eventoService.crearEvento(formData).subscribe({
+        next: () => {
+          Swal.fire({ title: 'Evento creado', icon: 'success', confirmButtonColor: '#6366f1' });
+          this.showEventForm.set(false);
+          this.selectedFile = null;
+        },
+        error: (err) => {
+          Swal.fire({ title: 'Error', text: err.error?.mensaje || 'Error al crear evento', icon: 'error', confirmButtonColor: '#ef4444' });
+        }
       });
     }
   }
@@ -135,23 +175,110 @@ export class AdminDashboardComponent implements OnInit {
 
   // --- User Methods ---
   openCreateUser() {
-    this.userForm = { idUsuario: 0, nombre: '', correo: '', nombreDeUsuario: '', claveDeUsuario: '', rol: 'ANFITRION' };
+    this.editMode.set(false);
+    this.userForm = {
+      idUsuario: 0,
+      nombre: '',
+      correo: '',
+      nombreDeUsuario: '',
+      claveDeUsuario: '',
+      rol: 'ANFITRION',
+      bloqueado: false,
+      habilitado: true
+    };
+    this.showUserForm.set(true);
+  }
+
+  editarUsuario(usuario: Usuario) {
+    this.editMode.set(true);
+    this.userForm = {
+      idUsuario: usuario.idUsuario,
+      nombre: usuario.nombreDeUsuario,
+      correo: usuario.email,
+      nombreDeUsuario: usuario.nombreDeUsuario,
+      claveDeUsuario: '',
+      rol: usuario.roles?.[0] || 'ANFITRION',
+      bloqueado: usuario.bloqueado,
+      habilitado: usuario.habilitado
+    };
     this.showUserForm.set(true);
   }
 
   guardarUsuario() {
-    const nuevoUsuario: any = {
-      nombre: this.userForm.nombre,
-      email: this.userForm.correo,
+    const datosUsuario: any = {
       nombreDeUsuario: this.userForm.nombreDeUsuario,
-      claveDeUsuario: this.userForm.claveDeUsuario,
-      roles: [this.userForm.rol]
+      email: this.userForm.correo,
+      roles: [this.userForm.rol],
+      bloqueado: this.userForm.bloqueado,
+      habilitado: this.userForm.habilitado
     };
 
-    this.usuarioService.crear(nuevoUsuario).subscribe(() => {
-      Swal.fire({ title: 'Usuario creado', icon: 'success', confirmButtonColor: '#6366f1' });
-      this.showUserForm.set(false);
-      this.usuarioService.cargarUsuarios();
+    if (this.userForm.claveDeUsuario && this.userForm.claveDeUsuario.trim() !== '') {
+      datosUsuario.claveDeUsuario = this.userForm.claveDeUsuario;
+    }
+
+    if (this.editMode()) {
+      this.usuarioService.actualizar(this.userForm.idUsuario, datosUsuario).subscribe({
+        next: () => {
+          Swal.fire({ title: 'Usuario actualizado', icon: 'success', confirmButtonColor: '#6366f1' });
+          this.showUserForm.set(false);
+          this.usuarioService.cargarUsuarios();
+        },
+        error: (err) => {
+          Swal.fire({
+            title: 'Error',
+            text: err.error?.mensaje || 'Error al actualizar usuario',
+            icon: 'error',
+            confirmButtonColor: '#ef4444'
+          });
+        }
+      });
+    } else {
+      this.usuarioService.crear(datosUsuario).subscribe({
+        next: () => {
+          Swal.fire({ title: 'Usuario creado', icon: 'success', confirmButtonColor: '#6366f1' });
+          this.showUserForm.set(false);
+          this.usuarioService.cargarUsuarios();
+        },
+        error: (err) => {
+          Swal.fire({
+            title: 'Error',
+            text: err.error?.mensaje || 'Error al crear usuario',
+            icon: 'error',
+            confirmButtonColor: '#ef4444'
+          });
+        }
+      });
+    }
+  }
+
+  eliminarUsuario(id: number) {
+    Swal.fire({
+      title: '¿Seguro que deseas desactivar este usuario?',
+      text: 'Esta acción deshabilitará su acceso al sistema.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, desactivar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.usuarioService.eliminar(id).subscribe({
+          next: () => {
+            Swal.fire({ title: 'Usuario desactivado', icon: 'success', confirmButtonColor: '#6366f1' });
+            this.usuarioService.cargarUsuarios();
+          },
+          error: (err) => {
+            Swal.fire({
+              title: 'Error',
+              text: err.error?.mensaje || 'Error al desactivar usuario',
+              icon: 'error',
+              confirmButtonColor: '#ef4444'
+            });
+          }
+        });
+      }
     });
   }
 

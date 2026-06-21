@@ -4,6 +4,7 @@ import { Evento, EventoService } from '../../../services/evento.service';
 import { AuthService } from '../../../services/auth.service';
 import { InvitacionService } from '../../../services/invitacion.service';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -17,6 +18,9 @@ export class AnfitrionDashboardComponent implements OnInit {
   private eventoService = inject(EventoService);
   private authService = inject(AuthService);
   private invitacionService = inject(InvitacionService);
+
+  // File Upload
+  selectedFile: File | null = null;
 
   eventos = this.eventoService.eventos;
   loading = this.eventoService.loading;
@@ -54,6 +58,22 @@ export class AnfitrionDashboardComponent implements OnInit {
     }
   }
 
+  onFileSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      this.selectedFile = file;
+    }
+  }
+
+  getImagenUrl(imagenUrl?: string): string {
+    if (!imagenUrl) return '';
+    if (imagenUrl.startsWith('http://') || imagenUrl.startsWith('https://')) {
+      return imagenUrl;
+    }
+    const serverUrl = environment.apiUrl.replace('/api', '');
+    return `${serverUrl}/uploads/banners/${imagenUrl}`;
+  }
+
   crear() {
     const user = this.authService.currentUser();
     if (!user) return;
@@ -64,10 +84,19 @@ export class AnfitrionDashboardComponent implements OnInit {
     formData.append('fecha', this.nuevoEvento.fecha);
     formData.append('idAnfitrion', user.idUsuario.toString());
 
+    if (this.selectedFile) {
+      formData.append('imagen', this.selectedFile);
+    }
+
     this.eventoService.crearEvento(formData).subscribe({
       next: () => {
         Swal.fire({ title: 'Evento creado', text: 'El evento se ha creado exitosamente.', icon: 'success', confirmButtonColor: '#6366f1' });
         this.nuevoEvento = { nombreEvento: '', lugar: '', fecha: '' };
+        this.selectedFile = null;
+        // Reset file input in UI via resetting the file input manually or form binding if we had any
+      },
+      error: (err) => {
+        Swal.fire({ title: 'Error', text: err.error?.mensaje || 'Error al crear el evento.', icon: 'error', confirmButtonColor: '#ef4444' });
       }
     });
   }
@@ -80,29 +109,39 @@ export class AnfitrionDashboardComponent implements OnInit {
       lugar: evento.lugar,
       fecha: evento.fecha
     };
+    this.selectedFile = null;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   cancelarEdicion() {
     this.editando.set(false);
     this.eventoAEditar = { idEvento: 0, nombreEvento: '', lugar: '', fecha: '' };
+    this.selectedFile = null;
   }
 
   actualizar() {
     if (!this.eventoAEditar.idEvento) return;
 
+    const user = this.authService.currentUser();
+    if (!user) return;
+
     const formData = new FormData();
     formData.append('nombreEvento', this.eventoAEditar.nombreEvento);
     formData.append('lugar', this.eventoAEditar.lugar);
     formData.append('fecha', this.eventoAEditar.fecha);
+    formData.append('idAnfitrion', user.idUsuario.toString());
+
+    if (this.selectedFile) {
+      formData.append('imagen', this.selectedFile);
+    }
 
     this.eventoService.actualizarEvento(this.eventoAEditar.idEvento, formData).subscribe({
       next: () => {
         Swal.fire({ title: 'Evento actualizado', text: 'El evento se ha actualizado exitosamente.', icon: 'success', confirmButtonColor: '#6366f1' });
         this.cancelarEdicion();
       },
-      error: () => {
-        Swal.fire({ title: 'Error', text: 'Error al actualizar el evento.', icon: 'error', confirmButtonColor: '#ef4444' });
+      error: (err) => {
+        Swal.fire({ title: 'Error', text: err.error?.mensaje || 'Error al actualizar el evento.', icon: 'error', confirmButtonColor: '#ef4444' });
       }
     });
   }

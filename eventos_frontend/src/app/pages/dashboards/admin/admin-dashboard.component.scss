@@ -234,3 +234,56 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.checkbox-group {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    color: var(--text-main) !important;
+  }
+  
+  input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+  }
+}
+
+.event-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.event-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+}
+
+.event-thumb-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-sm);
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  i { font-size: 1.2rem; }
+}
+
+

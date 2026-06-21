@@ -43,6 +43,10 @@
                 }
               </select>
             </div>
+            <div class="form-group">
+              <label>Imagen del Evento</label>
+              <input type="file" (change)="onFileSelected($event)" accept="image/*">
+            </div>
           </div>
           <div class="form-actions">
             <button class="btn-outline" (click)="showEventForm.set(false)">Cancelar</button>
@@ -65,14 +69,33 @@
         <tbody>
           @for (evento of eventos(); track evento.idEvento) {
             <tr>
-              <td>{{ evento.nombreEvento }}</td>
+              <td>
+                <div class="event-name-cell">
+                  @if (evento.imagenUrl) {
+                    <img [src]="getImagenUrl(evento.imagenUrl)" alt="Thumb" class="event-thumb">
+                  } @else {
+                    <div class="event-thumb-placeholder">
+                      <i class="ph ph-image"></i>
+                    </div>
+                  }
+                  <span>{{ evento.nombreEvento }}</span>
+                </div>
+              </td>
               <td>{{ evento.lugar }}</td>
               <td>{{ evento.anfitrion?.nombre }}</td>
               <td>
-                <button class="btn-icon" (click)="editarEvento(evento)">✏️</button>
-                <button class="btn-icon" (click)="abrirInvitados(evento)">👥</button>
-                <button class="btn-icon" (click)="deshabilitarEvento(evento.idEvento!)">🚫</button>
-                <button class="btn-icon delete" (click)="eliminarEvento(evento.idEvento!)">🗑️</button>
+                <button class="btn-icon" (click)="editarEvento(evento)" title="Editar Evento">
+                  <i class="ph ph-pencil"></i>
+                </button>
+                <button class="btn-icon" (click)="abrirInvitados(evento)" title="Gestionar Invitados">
+                  <i class="ph ph-users"></i>
+                </button>
+                <button class="btn-icon" (click)="deshabilitarEvento(evento.idEvento!)" title="Deshabilitar Evento">
+                  <i class="ph ph-prohibit"></i>
+                </button>
+                <button class="btn-icon delete" (click)="eliminarEvento(evento.idEvento!)" title="Eliminar Evento">
+                  <i class="ph ph-trash"></i>
+                </button>
               </td>
             </tr>
           }
@@ -133,7 +156,9 @@
                       <span class="badge" [class]="inv.estado">{{ inv.estado }}</span>
                     </td>
                     <td>
-                      <button class="btn-icon delete" (click)="quitarInvitado(inv.idInvitacion)">🗑️</button>
+                      <button class="btn-icon delete" (click)="quitarInvitado(inv.idInvitacion)" title="Quitar Invitado">
+                        <i class="ph ph-trash"></i>
+                      </button>
                     </td>
                   </tr>
                 } @empty {
@@ -159,7 +184,7 @@
     @if (showUserForm()) {
       <div class="form-overlay">
         <div class="form-card admin-modal">
-          <h3>Registrar Nuevo Usuario</h3>
+          <h3>{{ editMode() ? 'Editar Usuario' : 'Registrar Nuevo Usuario' }}</h3>
           <div class="form-grid">
             <div class="form-group">
               <label>Nombre Completo</label>
@@ -174,7 +199,7 @@
               <input type="text" [(ngModel)]="userForm.nombreDeUsuario">
             </div>
             <div class="form-group">
-              <label>Contraseña</label>
+              <label>Contraseña {{ editMode() ? '(Dejar en blanco para no cambiar)' : '' }}</label>
               <input type="password" [(ngModel)]="userForm.claveDeUsuario">
             </div>
             <div class="form-group">
@@ -185,10 +210,22 @@
                 <option value="ADMIN">Administrador</option>
               </select>
             </div>
+            @if (editMode()) {
+              <div class="form-group checkbox-group">
+                <label>
+                  <input type="checkbox" [(ngModel)]="userForm.bloqueado"> Bloqueado
+                </label>
+              </div>
+              <div class="form-group checkbox-group">
+                <label>
+                  <input type="checkbox" [(ngModel)]="userForm.habilitado"> Habilitado
+                </label>
+              </div>
+            }
           </div>
           <div class="form-actions">
             <button class="btn-outline" (click)="showUserForm.set(false)">Cancelar</button>
-            <button class="btn-primary" (click)="guardarUsuario()">Crear Usuario</button>
+            <button class="btn-primary" (click)="guardarUsuario()">{{ editMode() ? 'Guardar Cambios' : 'Crear Usuario' }}</button>
           </div>
         </div>
       </div>
@@ -202,6 +239,7 @@
             <th>Correo</th>
             <th>Rol</th>
             <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -210,7 +248,18 @@
               <td>{{ u.nombre }}</td>
               <td>{{ u.correo }}</td>
               <td><span class="badge" [class]="u.roles?.[0]">{{ u.roles?.[0] }}</span></td>
-              <td><span class="status-indicator" [class.active]="u.activo"></span></td>
+              <td>
+                <span class="status-indicator" [class.active]="u.activo"></span>
+                <span>{{ u.activo ? 'Activo' : (u.bloqueado ? 'Bloqueado' : 'Inactivo') }}</span>
+              </td>
+              <td>
+                <button class="btn-icon" (click)="editarUsuario(u)" title="Editar Usuario">
+                  <i class="ph ph-pencil"></i>
+                </button>
+                <button class="btn-icon delete" (click)="eliminarUsuario(u.idUsuario!)" title="Desactivar Usuario">
+                  <i class="ph ph-trash"></i>
+                </button>
+              </td>
             </tr>
           }
         </tbody>

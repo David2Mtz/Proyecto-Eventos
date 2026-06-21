@@ -58,6 +58,17 @@ public class UsuarioService {
             Set<Rol> roles = new HashSet<>();
             roles.add(defaultRol);
             usuario.setRoles(roles);
+        } else {
+            Set<Rol> persistentRoles = new HashSet<>();
+            for (Rol r : usuario.getRoles()) {
+                String nombreRol = r.getNombreRol();
+                if (nombreRol != null) {
+                    Rol persistentRol = rolRepository.findByNombreRol(nombreRol)
+                            .orElseThrow(() -> new RecursoNoEncontradoException("Rol no encontrado: " + nombreRol));
+                    persistentRoles.add(persistentRol);
+                }
+            }
+            usuario.setRoles(persistentRoles);
         }
 
         usuario.setClaveDeUsuario(passwordEncoder.encode(usuario.getClaveDeUsuario()));
@@ -75,7 +86,20 @@ public class UsuarioService {
 
         usuario.setNombreDeUsuario(usuarioActualizado.getNombreDeUsuario());
         usuario.setEmail(usuarioActualizado.getEmail());
-        usuario.setRoles(usuarioActualizado.getRoles());
+        
+        if (usuarioActualizado.getRoles() != null && !usuarioActualizado.getRoles().isEmpty()) {
+            Set<Rol> persistentRoles = new HashSet<>();
+            for (Rol r : usuarioActualizado.getRoles()) {
+                String nombreRol = r.getNombreRol();
+                if (nombreRol != null) {
+                    Rol persistentRol = rolRepository.findByNombreRol(nombreRol)
+                            .orElseThrow(() -> new RecursoNoEncontradoException("Rol no encontrado: " + nombreRol));
+                    persistentRoles.add(persistentRol);
+                }
+            }
+            usuario.setRoles(persistentRoles);
+        }
+        
         usuario.setBloqueado(usuarioActualizado.getBloqueado());
         usuario.setHabilitado(usuarioActualizado.getHabilitado());
 

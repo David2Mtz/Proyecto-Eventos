@@ -13,7 +13,7 @@
         @for (e of eventos(); track e.idEvento) {
           <button class="event-btn" (click)="seleccionarEvento(e.idEvento!)">
             <span class="event-name">{{ e.nombreEvento }}</span>
-            <span class="event-detail">📍 {{ e.lugar }}</span>
+            <span class="event-detail"><i class="ph ph-map-pin"></i> {{ e.lugar }}</span>
           </button>
         }
       </div>
@@ -76,7 +76,9 @@
       <section class="guests-summary">
         <div class="section-header">
           <h3>Asistencia</h3>
-          <button class="btn-text" (click)="imprimirPdf()">📥 PDF</button>
+          <button class="btn-text" (click)="imprimirPdf()">
+            <i class="ph ph-download-simple"></i> PDF
+          </button>
         </div>
         <div class="compact-list">
           @for (inv of invitaciones(); track inv.idInvitacion) {
@@ -86,7 +88,13 @@
                   <span class="status-dot" [class.dot-pendiente]="inv.estado === 'PENDIENTE'" [class.dot-utilizado]="inv.estado === 'UTILIZADO'"></span>
                   <span class="name">{{ inv.invitado?.nombre }}</span>
                 </div>
-                <span class="status">{{ inv.estado === 'UTILIZADO' ? '✅ Llegó' : '⏳ Pendiente' }}</span>
+                <span class="status">
+                  @if (inv.estado === 'UTILIZADO') {
+                    <i class="ph ph-check-circle" style="color: #10b981; vertical-align: middle;"></i> Llegó
+                  } @else {
+                    <i class="ph ph-clock" style="color: #f59e0b; vertical-align: middle;"></i> Pendiente
+                  }
+                </span>
               </div>
             </div>
           } @empty {

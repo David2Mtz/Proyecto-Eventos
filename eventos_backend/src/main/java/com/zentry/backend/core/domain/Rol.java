@@ -25,4 +25,8 @@ public class Rol implements Serializable {
 
     @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha;
+
+    public Rol(String nombreRol) {
+        this.nombreRol = nombreRol;
+    }
 }
