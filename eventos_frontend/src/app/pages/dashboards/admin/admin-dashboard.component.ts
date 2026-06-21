@@ -1,3 +1,4 @@
+// Trigger rebuild to pick up updated Evento interface
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

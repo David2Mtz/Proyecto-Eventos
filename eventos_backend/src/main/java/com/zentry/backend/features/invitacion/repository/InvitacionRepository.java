@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface InvitacionRepository extends JpaRepository<Invitacion, Long> {
     Optional<Invitacion> findByQrToken(String qrToken);
     List<Invitacion> findInvitacionsByIdEvento(Long idEvento);
+    boolean existsByIdEventoAndInvitadoCorreo(Long idEvento, String correo);
+    long countByIdInvitado(Long idInvitado);
 }

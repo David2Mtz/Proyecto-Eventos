@@ -39,7 +39,7 @@
               <select [(ngModel)]="eventForm.idAnfitrion">
                 <option value="">Selecciona un anfitrión</option>
                 @for (a of anfitriones(); track a.idUsuario) {
-                  <option [value]="a.idUsuario">{{ a.nombre }}</option>
+                  <option [value]="a.idUsuario.toString()">{{ a.nombre || a.nombreDeUsuario }}</option>
                 }
               </select>
             </div>
@@ -82,16 +82,13 @@
                 </div>
               </td>
               <td>{{ evento.lugar }}</td>
-              <td>{{ evento.anfitrion?.nombre }}</td>
-              <td>
-                <button class="btn-icon" (click)="editarEvento(evento)" title="Editar Evento">
+              <td>{{ evento.anfitrion?.nombre || evento.anfitrion?.nombreDeUsuario }}</td>
+              <td class="botones">
+                <button class="btn-icon edit" (click)="editarEvento(evento)" title="Editar Evento">
                   <i class="ph ph-pencil"></i>
                 </button>
-                <button class="btn-icon" (click)="abrirInvitados(evento)" title="Gestionar Invitados">
+                <button class="btn-icon guests" (click)="abrirInvitados(evento)" title="Gestionar Invitados">
                   <i class="ph ph-users"></i>
-                </button>
-                <button class="btn-icon" (click)="deshabilitarEvento(evento.idEvento!)" title="Deshabilitar Evento">
-                  <i class="ph ph-prohibit"></i>
                 </button>
                 <button class="btn-icon delete" (click)="eliminarEvento(evento.idEvento!)" title="Eliminar Evento">
                   <i class="ph ph-trash"></i>
@@ -252,8 +249,8 @@
                 <span class="status-indicator" [class.active]="u.activo"></span>
                 <span>{{ u.activo ? 'Activo' : (u.bloqueado ? 'Bloqueado' : 'Inactivo') }}</span>
               </td>
-              <td>
-                <button class="btn-icon" (click)="editarUsuario(u)" title="Editar Usuario">
+              <td class="botones">
+                <button class="btn-icon edit" (click)="editarUsuario(u)" title="Editar Usuario">
                   <i class="ph ph-pencil"></i>
                 </button>
                 <button class="btn-icon delete" (click)="eliminarUsuario(u.idUsuario!)" title="Desactivar Usuario">

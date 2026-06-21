@@ -59,25 +59,32 @@ public class InvitacionService {
     @Transactional
     public Invitacion crearInvitacion(InvitacionRequest request) {
         var eventoSearch = eventoRepository.findById(request.getIdEvento());
-       if(eventoSearch.isEmpty()) {
-           throw new RecursoNoEncontradoException("Evento no encontrado");
+        if (eventoSearch.isEmpty()) {
+            throw new RecursoNoEncontradoException("Evento no encontrado");
         }
-       if(invitadoRepository.existsByCorreo(request.getCorreoInvitado())){
-           throw new SolicitudInvalidaException("El correo ya existe en el sistema");
-       }
-       var invitado = invitadoRepository.save(Invitado.builder()
-                .nombre(request.getNombreInvitado())
-                .correo(request.getCorreoInvitado())
+        if (invitacionRepository.existsByIdEventoAndInvitadoCorreo(request.getIdEvento(), request.getCorreoInvitado())) {
+            throw new SolicitudInvalidaException("Este correo ya ha sido invitado a este evento");
+        }
+
+        // Reuse guest if they already exist, or save a new one
+        var invitado = invitadoRepository.findByCorreo(request.getCorreoInvitado())
+                .orElseGet(() -> invitadoRepository.save(
+                        Invitado.builder()
+                                .nombre(request.getNombreInvitado())
+                                .correo(request.getCorreoInvitado())
+                                .build()
+                ));
+
+        var token = UUID.randomUUID().toString();
+        var invitacion = invitacionRepository.save(Invitacion.builder()
+                .idEvento(request.getIdEvento())
+                .idInvitado(invitado.getIdInvitado())
+                .qrToken(token)
+                .estado(EstadoInvitacion.PENDIENTE)
                 .build());
-       var token = UUID.randomUUID().toString();
-      var invitacion =  invitacionRepository.save(Invitacion.builder()
-                        .idEvento(request.getIdEvento())
-                        .idInvitado(invitado.getIdInvitado())
-                        .qrToken(token)
-                        .estado(EstadoInvitacion.PENDIENTE)
-                .build());
-        enviarCorreoInvitacion(request.getIdEvento(), request.getCorreoInvitado(),token,eventoSearch.get().getFecha(),
-                eventoSearch.get().getLugar(),request.getNombreInvitado(), eventoSearch.get().getNombreEvento());
+
+        enviarCorreoInvitacion(request.getIdEvento(), request.getCorreoInvitado(), token, eventoSearch.get().getFecha(),
+                eventoSearch.get().getLugar(), request.getNombreInvitado(), eventoSearch.get().getNombreEvento());
         invitacion.setInvitado(invitado);
         invitacion.setEvento(eventoSearch.get());
         return invitacion;
@@ -87,9 +94,14 @@ public class InvitacionService {
     public void eliminarInvitacion(Long id) {
         var invitacion = invitacionRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Invitación no encontrada con ID: " + id));
+        
+        Long idInvitado = invitacion.getIdInvitado();
+        long count = idInvitado != null ? invitacionRepository.countByIdInvitado(idInvitado) : 0;
+        
         invitacionRepository.delete(invitacion);
-        if (invitacion.getIdInvitado() != null) {
-            invitadoRepository.deleteById(invitacion.getIdInvitado());
+        
+        if (idInvitado != null && count <= 1) {
+            invitadoRepository.deleteById(idInvitado);
         }
     }
 

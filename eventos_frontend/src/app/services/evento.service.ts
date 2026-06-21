@@ -12,6 +12,7 @@ export interface Evento {
   anfitrion?: {
     idUsuario: number;
     nombre: string;
+    nombreDeUsuario?: string;
   };
 }
 
