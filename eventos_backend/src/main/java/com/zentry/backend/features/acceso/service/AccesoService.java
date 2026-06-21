@@ -59,8 +59,19 @@ public class AccesoService {
         Invitacion invitacion = invitacionRepository.findByQrToken(request.getQrToken())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Invitación no encontrada con token QR: " + request.getQrToken()));
 
+        if (!invitacion.getIdEvento().equals(request.getIdEvento())) {
+            throw new SolicitudInvalidaException("Esta invitación no corresponde al evento seleccionado");
+        }
+
         if (invitacion.getEstado() == EstadoInvitacion.UTILIZADO) {
             throw new SolicitudInvalidaException("Esta invitación ya ha sido utilizada");
+        }
+
+        var evento = eventoRepository.findById(invitacion.getIdEvento())
+                .orElseThrow(() -> new RecursoNoEncontradoException("Evento no encontrado con ID: " + invitacion.getIdEvento()));
+
+        if (evento.getFecha() != null && evento.getFecha().plusHours(12).isBefore(LocalDateTime.now())) {
+            throw new SolicitudInvalidaException("Esta invitación ha caducado porque el evento ya finalizó");
         }
 
         Usuario staff = usuarioRepository.findById(request.getIdStaff())

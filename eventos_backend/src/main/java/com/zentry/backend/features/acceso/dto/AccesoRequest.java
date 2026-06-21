@@ -11,6 +11,9 @@ public class AccesoRequest {
     @NotNull(message = "El ID del staff es obligatorio")
     private Long idStaff;
 
+    @NotNull(message = "El ID del evento es obligatorio")
+    private Long idEvento;
+
     public String getQrToken() {
         return qrToken;
     }
@@ -25,5 +28,13 @@ public class AccesoRequest {
 
     public void setIdStaff(Long idStaff) {
         this.idStaff = idStaff;
+    }
+
+    public Long getIdEvento() {
+        return idEvento;
+    }
+
+    public void setIdEvento(Long idEvento) {
+        this.idEvento = idEvento;
     }
 }
