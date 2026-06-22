@@ -62,8 +62,8 @@ export class InvitacionService {
     );
   }
 
-  registrarAcceso(qrToken: string, idStaff: number): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/accesos/validar`, { qrToken, idStaff }).pipe(
+  registrarAcceso(qrToken: string, idStaff: number, idEvento: number): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/accesos/validar`, { qrToken, idStaff, idEvento }).pipe(
       tap(() => {
         // Actualizar estado local si es necesario
       })

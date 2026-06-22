@@ -134,7 +134,7 @@
               <thead>
                 <tr>
                   <th>Nombre</th>
-                  <th>Correo</th>
+                  <th class="col-hide-mobile">Correo</th>
                   <th>Estado</th>
                   <th>Acción</th>
                 </tr>
@@ -143,7 +143,7 @@
                 @for (inv of invitaciones(); track inv.idInvitacion) {
                   <tr>
                     <td>{{ inv.invitado?.nombre }}</td>
-                    <td>{{ inv.invitado?.correo }}</td>
+                    <td class="col-hide-mobile">{{ inv.invitado?.correo }}</td>
                     <td>
                       <span class="badge" [class]="inv.estado">{{ inv.estado }}</span>
                     </td>

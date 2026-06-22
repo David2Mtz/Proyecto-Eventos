@@ -92,7 +92,7 @@ export class AdminDashboardComponent implements OnInit {
       idEvento: evento.idEvento!,
       nombreEvento: evento.nombreEvento,
       lugar: evento.lugar,
-      fecha: evento.fecha,
+      fecha: evento.fecha ? evento.fecha.substring(0, 16) : '',
       idAnfitrion: evento.anfitrion?.idUsuario?.toString() || ''
     };
     this.selectedFile = null;
@@ -116,6 +116,23 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   guardarEvento() {
+    if (!this.eventForm.nombreEvento || !this.eventForm.nombreEvento.trim()) {
+      Swal.fire({ title: 'Campo requerido', text: 'El nombre del evento es obligatorio.', icon: 'warning', confirmButtonColor: '#6366f1' });
+      return;
+    }
+    if (!this.eventForm.lugar || !this.eventForm.lugar.trim()) {
+      Swal.fire({ title: 'Campo requerido', text: 'El lugar del evento es obligatorio.', icon: 'warning', confirmButtonColor: '#6366f1' });
+      return;
+    }
+    if (!this.eventForm.fecha) {
+      Swal.fire({ title: 'Campo requerido', text: 'La fecha y hora del evento son obligatorias.', icon: 'warning', confirmButtonColor: '#6366f1' });
+      return;
+    }
+    if (!this.eventForm.idAnfitrion) {
+      Swal.fire({ title: 'Campo requerido', text: 'Debes seleccionar un anfitrión para el evento.', icon: 'warning', confirmButtonColor: '#6366f1' });
+      return;
+    }
+
     const formData = new FormData();
     formData.append('nombreEvento', this.eventForm.nombreEvento);
     formData.append('lugar', this.eventForm.lugar);
@@ -132,6 +149,7 @@ export class AdminDashboardComponent implements OnInit {
           Swal.fire({ title: 'Evento actualizado', icon: 'success', confirmButtonColor: '#6366f1' });
           this.showEventForm.set(false);
           this.selectedFile = null;
+          this.eventoService.cargarEventos();
         },
         error: (err) => {
           Swal.fire({ title: 'Error', text: err.error?.mensaje || 'Error al actualizar evento', icon: 'error', confirmButtonColor: '#ef4444' });
@@ -143,6 +161,7 @@ export class AdminDashboardComponent implements OnInit {
           Swal.fire({ title: 'Evento creado', icon: 'success', confirmButtonColor: '#6366f1' });
           this.showEventForm.set(false);
           this.selectedFile = null;
+          this.eventoService.cargarEventos();
         },
         error: (err) => {
           Swal.fire({ title: 'Error', text: err.error?.mensaje || 'Error al crear evento', icon: 'error', confirmButtonColor: '#ef4444' });
@@ -206,6 +225,24 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   guardarUsuario() {
+    if (!this.userForm.nombreDeUsuario || !this.userForm.nombreDeUsuario.trim()) {
+      Swal.fire({ title: 'Campo requerido', text: 'El nombre de usuario es obligatorio.', icon: 'warning', confirmButtonColor: '#6366f1' });
+      return;
+    }
+    if (!this.userForm.correo || !this.userForm.correo.trim()) {
+      Swal.fire({ title: 'Campo requerido', text: 'El correo electrónico es obligatorio.', icon: 'warning', confirmButtonColor: '#6366f1' });
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.userForm.correo)) {
+      Swal.fire({ title: 'Formato inválido', text: 'Por favor ingresa un correo electrónico válido.', icon: 'warning', confirmButtonColor: '#6366f1' });
+      return;
+    }
+    if (!this.editMode() && (!this.userForm.claveDeUsuario || !this.userForm.claveDeUsuario.trim())) {
+      Swal.fire({ title: 'Campo requerido', text: 'La contraseña es obligatoria para nuevos usuarios.', icon: 'warning', confirmButtonColor: '#6366f1' });
+      return;
+    }
+
     const datosUsuario: any = {
       nombreDeUsuario: this.userForm.nombreDeUsuario,
       email: this.userForm.correo,

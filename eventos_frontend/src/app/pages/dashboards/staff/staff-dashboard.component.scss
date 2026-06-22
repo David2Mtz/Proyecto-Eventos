@@ -338,7 +338,42 @@
   background: none;
   border: none;
   color: var(--primary-color);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.2s;
+  
+  &:hover {
+    color: var(--primary-hover);
+  }
 }
+
+.guests-summary {
+  padding: 1.5rem;
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin: 0;
+      color: var(--text-main);
+    }
+  }
+}
+
+.compact-list {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+

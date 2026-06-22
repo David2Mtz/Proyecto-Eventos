@@ -14,6 +14,14 @@ export class NavbarComponent {
   authService = inject(AuthService);
   private router = inject(Router);
 
+  onLogoClick() {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/inicio']);
+    } else {
+      this.router.navigate(['/']);
+    }
+  }
+
   logout() {
     this.authService.logout();
     this.router.navigate(['/']);

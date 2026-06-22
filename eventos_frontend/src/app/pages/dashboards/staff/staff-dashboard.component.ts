@@ -77,7 +77,7 @@ export class StaffDashboardComponent implements OnInit {
 
     this.scanState.set('validating');
     this.isLoading.set(true);
-    this.invitacionService.registrarAcceso(this.qrToken, user.idUsuario).subscribe({
+    this.invitacionService.registrarAcceso(this.qrToken, user.idUsuario, this.idEventoSeleccionado()!).subscribe({
       next: () => {
         this.scanState.set('success');
         this.qrToken = '';

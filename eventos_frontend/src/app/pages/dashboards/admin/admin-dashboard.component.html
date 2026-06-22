@@ -20,7 +20,10 @@
     @if (showEventForm()) {
       <div class="form-overlay">
         <div class="form-card admin-modal">
-          <h3>{{ editMode() ? 'Editar Evento' : 'Nuevo Evento' }}</h3>
+          <div class="modal-header">
+            <h3>{{ editMode() ? 'Editar Evento' : 'Nuevo Evento' }}</h3>
+            <button class="btn-close" (click)="showEventForm.set(false)">×</button>
+          </div>
           <div class="form-grid">
             <div class="form-group">
               <label>Nombre</label>
@@ -61,8 +64,8 @@
         <thead>
           <tr>
             <th>Nombre Evento</th>
-            <th>Lugar</th>
-            <th>Anfitrión</th>
+            <th class="col-hide-mobile">Lugar</th>
+            <th class="col-hide-mobile">Anfitrión</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -81,8 +84,8 @@
                   <span>{{ evento.nombreEvento }}</span>
                 </div>
               </td>
-              <td>{{ evento.lugar }}</td>
-              <td>{{ evento.anfitrion?.nombre || evento.anfitrion?.nombreDeUsuario }}</td>
+              <td class="col-hide-mobile">{{ evento.lugar }}</td>
+              <td class="col-hide-mobile">{{ evento.anfitrion?.nombre || evento.anfitrion?.nombreDeUsuario }}</td>
               <td class="botones">
                 <button class="btn-icon edit" (click)="editarEvento(evento)" title="Editar Evento">
                   <i class="ph ph-pencil"></i>
@@ -139,7 +142,7 @@
               <thead>
                 <tr>
                   <th>Nombre</th>
-                  <th>Correo</th>
+                  <th class="col-hide-mobile">Correo</th>
                   <th>Estado</th>
                   <th>Acción</th>
                 </tr>
@@ -148,7 +151,7 @@
                 @for (inv of invitaciones(); track inv.idInvitacion) {
                   <tr>
                     <td>{{ inv.invitado?.nombre }}</td>
-                    <td>{{ inv.invitado?.correo }}</td>
+                    <td class="col-hide-mobile">{{ inv.invitado?.correo }}</td>
                     <td>
                       <span class="badge" [class]="inv.estado">{{ inv.estado }}</span>
                     </td>
@@ -181,7 +184,10 @@
     @if (showUserForm()) {
       <div class="form-overlay">
         <div class="form-card admin-modal">
-          <h3>{{ editMode() ? 'Editar Usuario' : 'Registrar Nuevo Usuario' }}</h3>
+          <div class="modal-header">
+            <h3>{{ editMode() ? 'Editar Usuario' : 'Registrar Nuevo Usuario' }}</h3>
+            <button class="btn-close" (click)="showUserForm.set(false)">×</button>
+          </div>
           <div class="form-grid">
             <div class="form-group">
               <label>Nombre Completo</label>
@@ -233,9 +239,9 @@
         <thead>
           <tr>
             <th>Nombre</th>
-            <th>Correo</th>
+            <th class="col-hide-mobile">Correo</th>
             <th>Rol</th>
-            <th>Estado</th>
+            <th class="col-hide-mobile">Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -243,9 +249,9 @@
           @for (u of usuarios(); track u.idUsuario) {
             <tr>
               <td>{{ u.nombre }}</td>
-              <td>{{ u.correo }}</td>
+              <td class="col-hide-mobile">{{ u.correo }}</td>
               <td><span class="badge" [class]="u.roles?.[0]">{{ u.roles?.[0] }}</span></td>
-              <td>
+              <td class="col-hide-mobile">
                 <span class="status-indicator" [class.active]="u.activo"></span>
                 <span>{{ u.activo ? 'Activo' : (u.bloqueado ? 'Bloqueado' : 'Inactivo') }}</span>
               </td>
